@@ -46,12 +46,6 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->trustProxies(at: '*');
-
-        // Append sessions & cookies specifically to API routes
-        $middleware->api(append: [
-            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-            \Illuminate\Session\Middleware\StartSession::class,
-        ]);
     })
     ->withSchedule(function (Schedule $schedule) {
         //
