@@ -46,6 +46,10 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->trustProxies(at: '*');
+
+        // 🔹 Add global middleware here (runs on EVERY request):
+        $middleware->append(\Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class);
+        $middleware->append(\Illuminate\Session\Middleware\StartSession::class);
     })
     ->withSchedule(function (Schedule $schedule) {
         //
