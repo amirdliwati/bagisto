@@ -43,7 +43,7 @@ use Webkul\Tax\Providers\TaxServiceProvider;
 use Webkul\Theme\Providers\ThemeServiceProvider;
 use Webkul\User\Providers\UserServiceProvider;
 use Webkul\B2BSuite\Providers\B2BSuiteServiceProvider;
-use Webkul\Rewards\Providers\RewardsServiceProvider;
+// use Webkul\Rewards\Providers\RewardsServiceProvider;
 
 return [
     /**
@@ -96,5 +96,5 @@ return [
     ThemeServiceProvider::class,
     UserServiceProvider::class,
     B2BSuiteServiceProvider::class,
-    RewardsServiceProvider::class,
+    // RewardsServiceProvider::class,
 ];
