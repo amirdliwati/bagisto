@@ -20,7 +20,6 @@
         "astrotomic/laravel-translatable": "^11.16",
         "bagisto/b2b-suite": "^2.0",
         "bagisto/bagisto-api": "^2.4",
-        "bagisto/bagisto-package-generator": "^2.1",
         "bagisto/graphql-api": "dev-main",
         "barryvdh/laravel-dompdf": "^2.0.0|^3.0",
         "diglactic/laravel-breadcrumbs": "^10.0",
@@ -55,6 +54,7 @@
         "stripe/stripe-php": "^17.3"
     },
     "require-dev": {
+        "bagisto/bagisto-package-generator": "^2.1",
         "bagisto/laravel-datafaker": "2.3.*",
         "barryvdh/laravel-debugbar": "^3.8",
         "fakerphp/faker": "^1.23",
