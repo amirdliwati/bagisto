@@ -2,6 +2,7 @@
 
 use Laravel\Telescope\Http\Middleware\Authorize;
 use Laravel\Telescope\Watchers;
+use Webkul\Core\Http\Middleware\NoCacheMiddleware;
 
 return [
 
@@ -92,9 +93,14 @@ return [
     |
     */
 
+    // 'middleware' => [
+    //     'web',
+    //     Authorize::class,
+    // ],
+
     'middleware' => [
-        'web',
-        Authorize::class,
+        'admin',
+        NoCacheMiddleware::class,
     ],
 
     /*
