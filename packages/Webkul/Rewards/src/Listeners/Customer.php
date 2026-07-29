@@ -55,6 +55,7 @@ class Customer
                 $reviewReward->exp_date = core()->getConfigData('reward.general.general.reward-used-at-one-time') ? Carbon::now()->addDays(core()->getConfigData('reward.general.general.reward-used-at-one-time'))->format('Y-m-d') : null;
 
                 $reviewReward->save();
+                
             }
         }
     }
