@@ -12,6 +12,7 @@ use Webkul\Core\Http\Middleware\SecureHeaders;
 use Webkul\Installer\Http\Middleware\CanInstall;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use App\Http\Middleware\SetLocaleByIp;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -59,6 +60,8 @@ return Application::configure(basePath: dirname(__DIR__))
          * Adding session and cookie middleware globally to apply across non-web routes (e.g. GraphQL)
          */
         $middleware->append([StartSession::class, AddQueuedCookiesToResponse::class]);
+
+        $middleware->appendToGroup('web', SetLocaleByIp::class);
     })
     ->withSchedule(function (Schedule $schedule) {
         //
