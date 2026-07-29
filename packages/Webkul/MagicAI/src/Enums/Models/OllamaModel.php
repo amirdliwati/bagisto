@@ -29,6 +29,7 @@ enum OllamaModel: string implements AiModelContract
     case DeepSeekR1_8B = 'deepseek-r1:8b';
     case DeepSeekR1_8B_Pinned = 'deepseek-r1:8b-0528-qwen3-q4_K_M';
     case DeepSeekR1_14B = 'deepseek-r1:14b';
+    case DeepSeekR1_1_5B = 'deepseek-r1:1.5b';
 
     /**
      * Qwen family (latest generation — recommended for most use cases). All are suitable for chat and non-chat use cases.
@@ -36,6 +37,7 @@ enum OllamaModel: string implements AiModelContract
     case Qwen3_8B = 'qwen3:8b';
     case Qwen3_30B = 'qwen3:30b';
     case Qwen25_7B = 'qwen2.5:7b';
+    case Qwen36_35B = 'qwen3.6:35b ';
 
     /**
      * Phi family (latest generation — recommended for most use cases). All are suitable for chat and non-chat use cases.
@@ -48,6 +50,8 @@ enum OllamaModel: string implements AiModelContract
     case Gemma3_4B = 'gemma3:4b';
     case Gemma3_9B = 'gemma3:9b';
     case Gemma3_27B = 'gemma3:27b';
+    case Gemma4_12B = 'gemma4:12b';
+    case Gemma4_31B = 'gemma4:31b';
 
     /**
      * Mistral family (latest generation — recommended for most use cases). All are suitable for chat and non-chat use cases.
@@ -93,6 +97,10 @@ enum OllamaModel: string implements AiModelContract
             self::Mistral_7B => 'Mistral 7B',
             self::MistralSmall3 => 'Mistral Small 3',
             self::GptOss => 'GPT-OSS',
+            self::DeepSeekR1_1_5B => 'DeepSeek R1 1.5B',
+            self::Qwen36_35B => 'Qwen 3.6 35B',
+            self::Gemma4_12B => 'Gemma 4 12B',
+            self::Gemma4_31B => 'Gemma 4 31B',
         };
     }
 
