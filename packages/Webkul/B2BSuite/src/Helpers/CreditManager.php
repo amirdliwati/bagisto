@@ -46,11 +46,11 @@ class CreditManager
             return null;
         }
 
-        if ($customer->type === 'company') {
+        if ($customer->type === 'user') {
             return $customer;
         }
 
-        return $customer->companies->firstOrFail();
+        return $customer->companies->first();
     }
 
     /**
