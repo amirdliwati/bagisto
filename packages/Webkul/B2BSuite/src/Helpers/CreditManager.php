@@ -50,7 +50,7 @@ class CreditManager
             return $customer;
         }
 
-        return $customer->companies->first();
+        return $customer->companies->firstOrFail();
     }
 
     /**
