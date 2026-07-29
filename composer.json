@@ -114,7 +114,8 @@
             "Webkul\\Theme\\": "packages/Webkul/Theme/src",
             "Webkul\\User\\": "packages/Webkul/User/src",
             "Webkul\\GraphQL\\": "packages/Webkul/GraphQL/src",
-            "Webkul\\Rewards\\": "packages/Webkul/Rewards/src"
+            "Webkul\\Rewards\\": "packages/Webkul/Rewards/src",
+            "Webkul\\B2BSuite\\": "packages/Webkul/B2BSuite/src"
         }
     },
     "autoload-dev": {

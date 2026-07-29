@@ -1,0 +1,50 @@
+<?php
+
+namespace Webkul\B2BSuite\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Webkul\B2BSuite\Contracts\CompanyRole as CompanyRoleContract;
+use Webkul\Customer\Models\CustomerProxy;
+
+class CompanyRole extends Model implements CompanyRoleContract
+{
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'b2b_company_roles';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name',
+        'description',
+        'permission_type',
+        'permissions',
+        'customer_id',
+    ];
+
+    /**
+     * The attributes that are castable.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'permissions' => 'array',
+    ];
+
+    /**
+     * Get the customers.
+     *
+     * @return HasMany
+     */
+    public function customers()
+    {
+        return $this->hasMany(CustomerProxy::modelClass());
+    }
+}
