@@ -5,7 +5,6 @@ return [
     App\Providers\TelescopeServiceProvider::class,
     Webkul\Admin\Providers\AdminServiceProvider::class,
     Webkul\Attribute\Providers\AttributeServiceProvider::class,
-    Webkul\B2BSuite\Providers\B2BSuiteServiceProvider::class,
     Webkul\BookingProduct\Providers\BookingProductServiceProvider::class,
     Webkul\CMS\Providers\CMSServiceProvider::class,
     Webkul\CartRule\Providers\CartRuleServiceProvider::class,
@@ -45,5 +44,7 @@ return [
     Webkul\Tax\Providers\TaxServiceProvider::class,
     Webkul\Theme\Providers\ThemeServiceProvider::class,
     Webkul\User\Providers\UserServiceProvider::class,
+    
     Webkul\Rewards\Providers\RewardsServiceProvider::class,
+    Webkul\B2BSuite\Providers\B2BSuiteServiceProvider::class,
 ];
