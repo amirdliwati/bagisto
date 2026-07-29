@@ -2,6 +2,7 @@
 
 namespace Webkul\Rewards\Providers;
 
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -40,6 +41,8 @@ class RewardsServiceProvider extends ServiceProvider
         $this->loadTranslationsFrom(__DIR__.'/../Resources/lang', 'rewards');
 
         $this->loadViewsFrom(__DIR__.'/../Resources/views', 'rewards');
+
+        Blade::anonymousComponentPath(__DIR__.'/../Resources/views/components/shop', 'shop');
 
         $this->publishable();
 
