@@ -402,4 +402,11 @@ return [
         'sort' => 9,
         'icon' => 'icon-configuration',
     ],
+    [
+        'key' => 'telescope',
+        'name' => 'admin::app.components.layouts.sidebar.monitoring',
+        'route' => 'telescope',
+        'sort' => 10,
+        'icon' => 'icon-cms',
+    ],
 ];

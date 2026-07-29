@@ -5338,6 +5338,7 @@ return [
                 'transactions' => 'Transactions',
                 'url-rewrites' => 'URL Rewrites',
                 'users' => 'Users',
+                'monitoring' => 'Monitoring',
             ],
 
             'powered-by' => [
