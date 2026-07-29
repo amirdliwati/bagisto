@@ -2,11 +2,10 @@
 
 namespace Webkul\Rewards\Providers;
 
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use Webkul\Checkout\Facades\Cart as CartFacade;
+use Webkul\Checkout\Facades\Cart;
 use Webkul\Customer\Contracts\Customer;
 use Webkul\Rewards\Console\Commands\CheckRewardExpire;
 use Webkul\Rewards\Console\Commands\DisableTimeReward;
@@ -35,23 +34,27 @@ class RewardsServiceProvider extends ServiceProvider
 
         Route::middleware('web')->group(__DIR__.'/../Routes/front-routes.php');
 
+        $this->app->register(ModuleServiceProvider::class);
+
+        $this->app->register(EventServiceProvider::class);
+
         $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
 
         $this->loadTranslationsFrom(__DIR__.'/../Resources/lang', 'rewards');
 
         $this->loadViewsFrom(__DIR__.'/../Resources/views', 'rewards');
 
-        Blade::anonymousComponentPath(__DIR__.'/../Resources/views/components/shop', 'shop');
-
         $this->publishable();
 
         $loader = AliasLoader::getInstance();
 
-        $loader->alias('cart', CartFacade::class);
+        $loader->alias('cart', Cart::class);
 
         // $this->app->singleton('cart', function () {
         //     return new Cart;
         // });
+
+        $this->app->bind('cart', 'Webkul\Rewards\Cart');
 
         if (core()->getConfigData('reward.general.general.module-status')) {
             $this->mergeConfigFrom(
@@ -64,8 +67,6 @@ class RewardsServiceProvider extends ServiceProvider
                 'menu.customer'
             );
         }
-
-        $this->app->bind('cart', 'Webkul\Rewards\Cart');
 
         if ($this->app->runningInConsole()) {
             $this->commands([
@@ -81,10 +82,6 @@ class RewardsServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->register(ModuleServiceProvider::class);
-
-        $this->app->register(EventServiceProvider::class);
-
         $this->registerConfig();
 
         $this->registerCommands();
