@@ -2,6 +2,7 @@
 
 namespace Webkul\Rewards\Providers;
 
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -35,15 +36,13 @@ class RewardsServiceProvider extends ServiceProvider
 
         Route::middleware('web')->group(__DIR__.'/../Routes/front-routes.php');
 
-        $this->app->register(ModuleServiceProvider::class);
-
-        $this->app->register(EventServiceProvider::class);
-
         $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
 
         $this->loadTranslationsFrom(__DIR__.'/../Resources/lang', 'rewards');
 
         $this->loadViewsFrom(__DIR__.'/../Resources/views', 'rewards');
+
+        Blade::anonymousComponentPath(__DIR__.'/../Resources/views/components/shop', 'shop');
 
         $this->publishable();
 
@@ -83,6 +82,10 @@ class RewardsServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->app->register(ModuleServiceProvider::class);
+
+        $this->app->register(EventServiceProvider::class);
+
         $this->registerConfig();
 
         $this->registerCommands();
