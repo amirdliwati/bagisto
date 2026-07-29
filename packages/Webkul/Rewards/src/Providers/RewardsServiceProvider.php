@@ -35,10 +35,6 @@ class RewardsServiceProvider extends ServiceProvider
 
         Route::middleware('web')->group(__DIR__.'/../Routes/front-routes.php');
 
-        $this->app->register(ModuleServiceProvider::class);
-
-        $this->app->register(EventServiceProvider::class);
-
         $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
 
         $this->loadTranslationsFrom(__DIR__.'/../Resources/lang', 'rewards');
@@ -83,6 +79,10 @@ class RewardsServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->app->register(ModuleServiceProvider::class);
+
+        $this->app->register(EventServiceProvider::class);
+
         $this->registerConfig();
 
         $this->registerCommands();
