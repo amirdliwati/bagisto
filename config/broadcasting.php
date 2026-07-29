@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('BROADCAST_DRIVER', 'null'),
+    'default' => env('BROADCAST_DRIVER', 'reverb'),
 
     /*
     |--------------------------------------------------------------------------
@@ -29,6 +29,23 @@ return [
     */
 
     'connections' => [
+        'reverb' => [
+            'driver' => 'reverb',
+            'key' => env('REVERB_APP_KEY', 'b7maxpps5nont6iglq11'),
+            'secret' => env('REVERB_APP_SECRET', 'okfeb7hbyerxvkcpkhdr'),
+            'app_id' => env('REVERB_APP_ID', 129000),
+            'options' => [
+                'host' => env('REVERB_HOST', 'connector.frontier-ibs.com'),
+                'port' => env('REVERB_PORT', 443),
+                'scheme' => env('REVERB_SCHEME', 'https'),
+                'useTLS' => env('REVERB_SCHEME', 'https') === 'https',
+            ],
+            'client_options' => [
+                // Guzzle client options: https://docs.guzzlephp.org/en/stable/request-options.html
+                'verify' => env('REVERB_VERIFY', true), // Disable SSL verification (development only)
+            ],
+        ],
+        
         'pusher' => [
             'driver' => 'pusher',
             'key' => env('PUSHER_APP_KEY'),
