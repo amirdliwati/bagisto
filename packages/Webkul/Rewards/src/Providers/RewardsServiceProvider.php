@@ -5,7 +5,8 @@ namespace Webkul\Rewards\Providers;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use Webkul\Checkout\Facades\Cart;
+use Webkul\Checkout\Facades\Cart as CartFacade;
+use Webkul\Checkout\Models\Cart;
 use Webkul\Customer\Contracts\Customer;
 use Webkul\Rewards\Console\Commands\CheckRewardExpire;
 use Webkul\Rewards\Console\Commands\DisableTimeReward;
@@ -48,13 +49,11 @@ class RewardsServiceProvider extends ServiceProvider
 
         $loader = AliasLoader::getInstance();
 
-        $loader->alias('cart', Cart::class);
+        $loader->alias('cart', CartFacade::class);
 
-        // $this->app->singleton('cart', function () {
-        //     return new Cart;
-        // });
-
-        $this->app->bind('cart', 'Webkul\Rewards\Cart');
+        $this->app->singleton('cart', function () {
+            return new Cart;
+        });
 
         if (core()->getConfigData('reward.general.general.module-status')) {
             $this->mergeConfigFrom(
@@ -67,6 +66,8 @@ class RewardsServiceProvider extends ServiceProvider
                 'menu.customer'
             );
         }
+
+        $this->app->bind('cart', 'Webkul\Rewards\Cart');
 
         if ($this->app->runningInConsole()) {
             $this->commands([
