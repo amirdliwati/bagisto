@@ -50,9 +50,9 @@ class RewardsServiceProvider extends ServiceProvider
 
         $loader->alias('cart', CartFacade::class);
 
-        $this->app->singleton('cart', function () {
-            return new Cart;
-        });
+        // $this->app->singleton('cart', function () {
+        //     return new Cart;
+        // });
 
         if (core()->getConfigData('reward.general.general.module-status')) {
             $this->mergeConfigFrom(
