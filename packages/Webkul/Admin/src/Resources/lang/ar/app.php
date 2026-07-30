@@ -5371,7 +5371,6 @@ return [
                 'transactions' => 'المعاملات',
                 'url-rewrites' => 'إعادة كتابة عناوين URL',
                 'users' => 'المستخدمين',
-                'monitoring' => 'مراقبة',
             ],
 
             'powered-by' => [
