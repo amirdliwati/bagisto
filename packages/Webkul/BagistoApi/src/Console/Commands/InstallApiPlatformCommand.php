@@ -322,6 +322,7 @@ class InstallApiPlatformCommand extends Command
                 'php',
                 'artisan',
                 'migrate',
+                '--force',
             ]);
 
             $process->run();
