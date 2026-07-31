@@ -45,7 +45,7 @@ return [
     Webkul\Theme\Providers\ThemeServiceProvider::class,
     Webkul\User\Providers\UserServiceProvider::class,
     
-    Webkul\Rewards\Providers\RewardsServiceProvider::class,
+    // Webkul\Rewards\Providers\RewardsServiceProvider::class,
     Webkul\B2BSuite\Providers\B2BSuiteServiceProvider::class,
     Webkul\BagistoApi\Providers\BagistoApiServiceProvider::class,
 
