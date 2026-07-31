@@ -1497,7 +1497,7 @@ class BagistoApiServiceProvider extends ServiceProvider
     {
         $this->loadTranslationsFrom(__DIR__.'/../Resources/lang', 'bagistoapi');
         $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'webkul');
+        $this->loadViewsFrom(__DIR__.'/../Resources/views', 'webkul');
 
         $this->bootAdminIntegration();
 
@@ -1521,7 +1521,7 @@ class BagistoApiServiceProvider extends ServiceProvider
         ], 'bagistoapi-config');
 
         $this->publishes([
-            __DIR__.'/../resources/views' => resource_path('views/vendor/webkul'),
+            __DIR__.'/../Resources/views' => resource_path('views/vendor/webkul'),
         ], 'bagistoapi-views');
 
         $this->publishes([
