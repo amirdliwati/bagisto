@@ -55,11 +55,11 @@ return [
     ],
 
     'resources' => [
-        base_path('packages/Webkul/BagistoApi/src/Models/'),
-        base_path('packages/Webkul/BagistoApi/src/Admin/Models/'),
-        base_path('packages/Webkul/BagistoApi/src/Admin/Dto/'),
-        base_path('packages/Webkul/BagistoApi/src/Dto/ProductDetail/'),
-        base_path('packages/Webkul/BagistoApi/src/Dto/CustomerOrder/'),
+        // base_path('packages/Webkul/BagistoApi/src/Models/'),
+        // base_path('packages/Webkul/BagistoApi/src/Admin/Models/'),
+        // base_path('packages/Webkul/BagistoApi/src/Admin/Dto/'),
+        // base_path('packages/Webkul/BagistoApi/src/Dto/ProductDetail/'),
+        // base_path('packages/Webkul/BagistoApi/src/Dto/CustomerOrder/'),
     ],
 
     'formats' => [
@@ -99,7 +99,7 @@ return [
     ],
 
     'graphql' => [
-        'enabled' => true,
+        'enabled' => false,
         'nesting_separator' => '__',
         'introspection' => ['enabled' => true],
         'max_query_complexity' => 400,
