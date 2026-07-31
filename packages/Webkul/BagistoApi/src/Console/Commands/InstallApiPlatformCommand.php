@@ -141,7 +141,7 @@ class InstallApiPlatformCommand extends Command
     {
         try {
             $process = new Process([
-                $this->phpBinary(),
+                'php',
                 'artisan',
                 'vendor:publish',
                 '--provider=Webkul\BagistoApi\Providers\BagistoApiServiceProvider',
@@ -319,10 +319,9 @@ class InstallApiPlatformCommand extends Command
             $this->info(__('bagistoapi::app.graphql.install.running-migrations'));
 
             $process = new Process([
-                $this->phpBinary(),
+                'php',
                 'artisan',
                 'migrate',
-                '--force',
             ]);
 
             $process->run();
@@ -346,7 +345,7 @@ class InstallApiPlatformCommand extends Command
             $this->info(__('bagistoapi::app.graphql.install.clearing-caches'));
 
             $clearProcess = new Process([
-                $this->phpBinary(),
+                'php',
                 'artisan',
                 'config:clear',
             ]);
@@ -358,7 +357,7 @@ class InstallApiPlatformCommand extends Command
             }
 
             $cacheProcess = new Process([
-                $this->phpBinary(),
+                'php',
                 'artisan',
                 'cache:clear',
             ]);
@@ -370,7 +369,7 @@ class InstallApiPlatformCommand extends Command
             }
 
             $clearProcess = new Process([
-                $this->phpBinary(),
+                'php',
                 'artisan',
                 'optimize:clear',
             ]);
@@ -382,7 +381,7 @@ class InstallApiPlatformCommand extends Command
             }
 
             $optimizeProcess = new Process([
-                $this->phpBinary(),
+                'php',
                 'artisan',
                 'optimize',
             ]);
@@ -415,7 +414,7 @@ class InstallApiPlatformCommand extends Command
             $this->info(__('bagistoapi::app.graphql.install.generating-api-key'));
 
             $process = new Process([
-                $this->phpBinary(),
+                'php',
                 'artisan',
                 'bagisto-api:generate-key',
                 '--name=Default Storefront Key1',
@@ -492,13 +491,5 @@ class InstallApiPlatformCommand extends Command
         $this->files->put($envPath, $envContent);
 
         $this->line(__('bagistoapi::app.graphql.install.env-config-saved'));
-    }
-
-    /**
-     * Get current PHP binary path.
-     */
-    protected function phpBinary(): string
-    {
-        return PHP_BINARY;
     }
 }
