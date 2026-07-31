@@ -47,6 +47,7 @@ return [
     
     Webkul\Rewards\Providers\RewardsServiceProvider::class,
     Webkul\B2BSuite\Providers\B2BSuiteServiceProvider::class,
+    Webkul\BagistoApi\Providers\BagistoApiServiceProvider::class,
 
     Frontier\Admin\Providers\AdminServiceProvider::class,
 ];

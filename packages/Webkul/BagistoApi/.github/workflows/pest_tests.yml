@@ -1,0 +1,139 @@
+name: Pest Tests
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pest-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pest_tests:
+    runs-on: ubuntu-22.04
+    continue-on-error: true
+
+    strategy:
+      matrix:
+        php-versions: ['8.3']
+
+    name: PHP ${{ matrix.php-versions }} | pest against Bagisto v2.4.7
+
+    env:
+      BAGISTO_VERSION: v2.4.7
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: bagisto
+        ports:
+          - 3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    steps:
+      - name: Checkout bagisto-api plugin
+        uses: actions/checkout@v4
+        with:
+          path: plugin
+
+      - name: Checkout Bagisto ${{ env.BAGISTO_VERSION }}
+        uses: actions/checkout@v4
+        with:
+          repository: bagisto/bagisto
+          ref: ${{ env.BAGISTO_VERSION }}
+          path: bagisto
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: curl, fileinfo, gd, intl, mbstring, openssl, pdo, pdo_mysql, tokenizer, zip
+          ini-values: error_reporting=E_ALL
+          tools: composer:v2
+
+      - name: Install Bagisto composer dependencies
+        working-directory: bagisto
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Wire plugin into Bagisto via composer path repository
+        # AFTER composer install: otherwise composer.lock replay drops the require.
+        working-directory: bagisto
+        run: |
+          composer config repositories.bagisto-api path ../plugin
+          composer require bagisto/bagisto-api:@dev --no-interaction --no-progress
+
+      - name: Configure environment
+        working-directory: bagisto
+        run: |
+          cp .env.example .env
+          sed -i "s|^\(APP_ENV=\s*\).*$|\1testing|" .env
+          sed -i "s|^\(APP_DEBUG=\s*\).*$|\1true|" .env
+          sed -i "s|^\(DB_HOST=\s*\).*$|\1127.0.0.1|" .env
+          sed -i "s|^\(DB_PORT=\s*\).*$|\1${{ job.services.mysql.ports['3306'] }}|" .env
+          sed -i "s|^\(DB_DATABASE=\s*\).*$|\1bagisto|" .env
+          sed -i "s|^\(DB_USERNAME=\s*\).*$|\1root|" .env
+          sed -i "s|^\(DB_PASSWORD=\s*\).*$|\1root|" .env
+          # No Redis service in CI; tests bypass rate-limit middleware anyway.
+          grep -q '^CACHE_DRIVER=' .env && sed -i "s|^CACHE_DRIVER=.*|CACHE_DRIVER=array|" .env || echo "CACHE_DRIVER=array" >> .env
+          grep -q '^SESSION_DRIVER=' .env && sed -i "s|^SESSION_DRIVER=.*|SESSION_DRIVER=array|" .env || echo "SESSION_DRIVER=array" >> .env
+          grep -q '^QUEUE_CONNECTION=' .env && sed -i "s|^QUEUE_CONNECTION=.*|QUEUE_CONNECTION=sync|" .env || echo "QUEUE_CONNECTION=sync" >> .env
+          cat .env
+
+      - name: Run Bagisto installer
+        working-directory: bagisto
+        run: php artisan bagisto:install --skip-env-check --skip-admin-creation --skip-github-star
+
+      - name: Run Bagisto API Platform installer
+        working-directory: bagisto
+        run: php artisan bagisto-api-platform:install
+
+      - name: Expose plugin Tests namespace to host autoloader
+        working-directory: bagisto
+        run: |
+          php -r '
+            $file = "composer.json";
+            $json = json_decode(file_get_contents($file), true);
+            $json["autoload-dev"]["psr-4"]["Webkul\\BagistoApi\\Tests\\"] = "vendor/bagisto/bagisto-api/tests/";
+            file_put_contents($file, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+          '
+          composer dump-autoload --no-interaction
+
+      - name: Run GraphQL APIs Pest (plugin suite)
+        id: graphql_tests
+        working-directory: bagisto
+        continue-on-error: true
+        run: vendor/bin/pest --parallel --processes=4 --colors=always vendor/bagisto/bagisto-api/tests/Feature/GraphQL
+
+      - name: Run REST APIs Pest (plugin suite)
+        id: rest_tests
+        if: always()
+        working-directory: bagisto
+        continue-on-error: true
+        run: vendor/bin/pest --parallel --processes=4 --colors=always vendor/bagisto/bagisto-api/tests/Feature/RestApi
+
+      - name: Run Admin GraphQL APIs Pest (plugin suite)
+        id: admin_graphql_tests
+        if: always()
+        working-directory: bagisto
+        continue-on-error: true
+        run: vendor/bin/pest --parallel --processes=4 --colors=always vendor/bagisto/bagisto-api/tests/Feature/Admin/GraphQL
+
+      - name: Run Admin REST APIs Pest (plugin suite)
+        id: admin_rest_tests
+        if: always()
+        working-directory: bagisto
+        continue-on-error: true
+        run: vendor/bin/pest --parallel --processes=4 --colors=always vendor/bagisto/bagisto-api/tests/Feature/Admin/RestApi
+        
+      # Every suite runs even when an earlier one is red (continue-on-error above),
+      # then this step fails the job if any of them did not pass.
+      - name: Suite results
+        if: always()
+        run: |
+          echo "GraphQL:        ${{ steps.graphql_tests.outcome }}"
+          echo "REST:           ${{ steps.rest_tests.outcome }}"
+          echo "Admin GraphQL:  ${{ steps.admin_graphql_tests.outcome }}"
+          echo "Admin REST:     ${{ steps.admin_rest_tests.outcome }}"

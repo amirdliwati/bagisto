@@ -1,0 +1,92 @@
+<?php
+
+namespace Webkul\BagistoApi\State\Processor;
+
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\State\ProcessorInterface;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Webkul\BagistoApi\Dto\SubscribeToNewsletterInput;
+use Webkul\BagistoApi\Dto\SubscribeToNewsletterOutput;
+use Webkul\BagistoApi\Exception\AuthorizationException;
+use Webkul\BagistoApi\Exception\InvalidInputException;
+use Webkul\Core\Models\SubscribersListProxy;
+
+class NewsletterSubscriptionProcessor implements ProcessorInterface
+{
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
+    {
+        // Accept the GraphQL 'create' mutation AND any REST Post
+        // (the REST op is named 'createNewsletterSubscription').
+        if (
+            $operation->getName() !== 'create'
+            && ! $operation instanceof Post
+        ) {
+            return $this->output(false, __('bagistoapi::app.graphql.logout.invalid-operation'));
+        }
+
+        if (! ($data instanceof SubscribeToNewsletterInput)) {
+            return $this->output(false, __('bagistoapi::app.graphql.logout.invalid-input-data'));
+        }
+
+        // REST + GraphQL fallback: the name-converter chain can miss camelCase
+        // JSON keys (`customerEmail` → `$customer_email` snake-case) so the DTO
+        // never hydrates. Pull from the raw body (REST) or the GraphQL input
+        // args (GraphQL) when the DTO is empty.
+        if (empty($data->customerEmail)) {
+            $body = request()->all();
+            $input = $context['args']['input'] ?? [];
+            $data->customerEmail = $body['customerEmail']
+                ?? $body['customer_email']
+                ?? $input['customerEmail']
+                ?? $input['customer_email']
+                ?? null;
+        }
+
+        $validator = Validator::make(['customerEmail' => $data->customerEmail], ['customerEmail' => 'required|email|unique:subscribers_list,email']);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            $errorMessage = implode(' ', $errors);
+
+            throw new InvalidInputException($errorMessage);
+        }
+
+        try {
+            $customer = Auth::guard('sanctum')->user();
+
+            if (! $customer) {
+                throw new AuthorizationException(__('bagistoapi::app.graphql.logout.unauthenticated'));
+            }
+
+            $token = $customer->currentAccessToken();
+
+            if (! $token) {
+                throw new AuthorizationException(__('bagistoapi::app.graphql.logout.token-not-found-or-expired'));
+            }
+
+            SubscribersListProxy::create([
+                'email' => $data->customerEmail,
+                'channel_id' => $data?->channelId ?? core()->getCurrentChannel()->id,
+                'is_subscribed' => 1,
+                'token' => uniqid(),
+                'customer_id' => $customer ? $customer?->id : null,
+            ]);
+
+            return $this->output(true, __('shop::app.subscription.subscribe-success'));
+        } catch (\Exception $e) {
+            return $this->output(false, __('bagistoapi::app.graphql.newsletter.error-during-subscription'));
+        }
+    }
+
+    private function output(bool $success, string $message): SubscribeToNewsletterOutput
+    {
+        $output = new SubscribeToNewsletterOutput;
+
+        $output->success = $success;
+        $output->message = $message;
+
+        return $output;
+    }
+}

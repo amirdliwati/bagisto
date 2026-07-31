@@ -21,7 +21,6 @@
         "api-platform/http-cache": "^4.3",
         "api-platform/laravel": "~4.3.8",
         "astrotomic/laravel-translatable": "^11.16",
-        "bagisto/bagisto-api": "^2.4",
         "bagisto/graphql-api": "dev-main",
         "barryvdh/laravel-dompdf": "^2.0.0|^3.0",
         "diglactic/laravel-breadcrumbs": "^10.0",
@@ -119,6 +118,7 @@
             "Webkul\\GraphQL\\": "packages/Webkul/GraphQL/src",
             "Webkul\\Rewards\\": "packages/Webkul/Rewards/src",
             "Webkul\\B2BSuite\\": "packages/Webkul/B2BSuite/src",
+            "Webkul\\BagistoApi\\": "packages/Webkul/BagistoApi/src",
             "Frontier\\Admin\\": "packages/Frontier/Admin/src"
         }
     },
@@ -135,7 +135,8 @@
             "Webkul\\PayU\\Tests\\": "packages/Webkul/PayU/tests",
             "Webkul\\Razorpay\\Tests\\": "packages/Webkul/Razorpay/tests",
             "Webkul\\Shop\\Tests\\": "packages/Webkul/Shop/tests",
-            "Webkul\\Stripe\\Tests\\": "packages/Webkul/Stripe/tests"
+            "Webkul\\Stripe\\Tests\\": "packages/Webkul/Stripe/tests",
+            "Webkul\\BagistoApi\\Tests\\": "packages/Webkul/BagistoApi/tests"
         }
     },
     "scripts": {

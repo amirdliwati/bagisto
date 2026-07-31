@@ -1,0 +1,253 @@
+<?php
+
+namespace Webkul\BagistoApi\Models;
+
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\GraphQl\Query;
+use ApiPlatform\Metadata\GraphQl\QueryCollection;
+use ApiPlatform\OpenApi\Model\Operation;
+use ApiPlatform\OpenApi\Model\Parameter;
+use ApiPlatform\OpenApi\Model\Response;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Webkul\BagistoApi\Resolver\BaseQueryItemResolver;
+use Webkul\BagistoApi\Resolver\CategoryCollectionResolver;
+use Webkul\BagistoApi\State\CategoryRestProvider;
+use Webkul\BagistoApi\State\CursorAwareCollectionProvider;
+use Webkul\Category\Models\Category as BaseCategory;
+
+#[ApiResource(
+    routePrefix: '/api/shop',
+    operations: [
+        new Get(
+            openapi: new Operation(
+                tags: ['Category'],
+                summary: 'Get a single active category',
+                description: 'Returns one active category by ID. Public endpoint.',
+                responses: [
+                    '200' => new Response(
+                        description: 'Category detail.',
+                        content: new \ArrayObject([
+                            'application/json' => [
+                                'example' => [
+                                    'id' => 24,
+                                    'position' => 1,
+                                    'status' => 1,
+                                    'displayMode' => 'products_and_description',
+                                    '_lft' => 27,
+                                    '_rgt' => 32,
+                                    'createdAt' => '2026-05-21T12:53:40+05:30',
+                                    'updatedAt' => '2026-05-21T12:53:40+05:30',
+                                    'url' => '',
+                                    'filterableAttributes' => [],
+                                    'translations' => [],
+                                    'children' => ['/api/shop/categories/25', '/api/shop/categories/26'],
+                                ],
+                            ],
+                        ]),
+                    ),
+                    '404' => new Response(
+                        description: 'Category not found.',
+                    ),
+                ],
+            ),
+        ),
+        new GetCollection(
+            provider: CategoryRestProvider::class,
+            paginationEnabled: true,
+            paginationClientItemsPerPage: true,
+            paginationItemsPerPage: 10,
+            paginationMaximumItemsPerPage: 50,
+            openapi: new Operation(
+                tags: ['Category'],
+                summary: 'List active categories with optional parent filtering',
+                description: 'Returns a flat list of active categories only (status=1). Admin-disabled categories are never returned. Use `?parent_id=N` for direct children of a category. Each item embeds its `translation`, `children`, and `filterableAttributes`. For a hierarchical tree response use /category-trees instead. Public endpoint.',
+                responses: [
+                    '200' => new Response(
+                        description: 'List of active categories.',
+                        content: new \ArrayObject([
+                            'application/json' => [
+                                'example' => [
+                                    [
+                                        'id' => 24,
+                                        'position' => 1,
+                                        'status' => 1,
+                                        'displayMode' => 'products_and_description',
+                                        '_lft' => 27,
+                                        '_rgt' => 32,
+                                        'createdAt' => '2026-05-21T12:53:40+05:30',
+                                        'updatedAt' => '2026-05-21T12:53:40+05:30',
+                                        'url' => '',
+                                        'filterableAttributes' => [],
+                                        'translations' => [],
+                                        'children' => ['/api/shop/categories/25', '/api/shop/categories/26'],
+                                    ],
+                                ],
+                            ],
+                        ]),
+                    ),
+                ],
+                parameters: [
+                    new Parameter(
+                        name: 'parent_id',
+                        in: 'query',
+                        description: 'Return only direct children of this category ID. Accepts `parentId` as an alias.',
+                        required: false,
+                        schema: ['type' => 'integer', 'example' => 2],
+                    ),
+                    new Parameter(
+                        name: 'page',
+                        in: 'query',
+                        description: 'Page number (1-based).',
+                        required: false,
+                        schema: ['type' => 'integer', 'default' => 1],
+                    ),
+                    new Parameter(
+                        name: 'per_page',
+                        in: 'query',
+                        description: 'Items per page. Default 10, max 50.',
+                        required: false,
+                        schema: ['type' => 'integer', 'default' => 10],
+                    ),
+                ],
+            ),
+        ),
+    ],
+    graphQlOperations: [
+        new Query(resolver: BaseQueryItemResolver::class),
+        new QueryCollection(provider: CursorAwareCollectionProvider::class),
+        new QueryCollection(
+            name: 'tree',
+            args: [
+                'parentId' => [
+                    'type' => 'Int',
+                    'description' => 'Only children of this category will be returned, usually a root category.',
+                ],
+            ],
+            paginationEnabled: false,
+            resolver: CategoryCollectionResolver::class
+        ),
+    ],
+)]
+class Category extends BaseCategory
+{
+    protected $appends = ['logo_url', 'banner_url', 'url', 'min_price', 'max_price'];
+
+    private ?array $categoryPriceRange = null;
+
+    /**
+     * Lowest product price in this category for the requesting customer's group.
+     */
+    #[ApiProperty(description: 'Lowest product price in this category for the requesting customer group')]
+    public function getMinPriceAttribute(): float
+    {
+        return $this->resolvePriceRange()['min'];
+    }
+
+    /**
+     * Highest product price in this category for the requesting customer's group.
+     */
+    #[ApiProperty(description: 'Highest product price in this category for the requesting customer group')]
+    public function getMaxPriceAttribute(): float
+    {
+        return $this->resolvePriceRange()['max'];
+    }
+
+    private function resolvePriceRange(): array
+    {
+        if ($this->categoryPriceRange !== null) {
+            return $this->categoryPriceRange;
+        }
+
+        $customer = Auth::guard('sanctum')->user();
+
+        $customerGroup = ($customer && $customer->group)
+            ? $customer->group
+            : core()->getGuestCustomerGroup();
+
+        $range = DB::table('product_price_indices')
+            ->join('product_categories', 'product_categories.product_id', '=', 'product_price_indices.product_id')
+            ->where('product_price_indices.customer_group_id', $customerGroup->id)
+            ->where('product_categories.category_id', $this->id)
+            ->selectRaw('MIN(min_price) as min_price, MAX(min_price) as max_price')
+            ->first();
+
+        return $this->categoryPriceRange = [
+            'min' => (float) ($range->min_price ?? 0),
+            'max' => (float) ($range->max_price ?? 0),
+        ];
+    }
+
+    /**
+     * Get category translation for the current locale
+     */
+    #[ApiProperty(readableLink: true, description: 'Current locale translation')]
+    public function getTranslation(?string $locale = null, ?bool $withFallback = null): ?Model
+    {
+        return $this->translation;
+    }
+
+    /**
+     * Override core Category::getUrlAttribute() — when the translated slug is
+     * null (no translation row, common for newly-created categories or admin
+     * locales other than the default), core's `url($null)` returns the
+     * UrlGenerator object instead of a string. Symfony Serializer then tries to
+     * normalize that UrlGenerator → reaches Request::getSession() → throws
+     * SessionNotFoundException on the stateless API.
+     *
+     * Always return a string (or empty string) — never an object.
+     */
+    public function getUrlAttribute(): string
+    {
+        try {
+            $slug = $this->translate(core()->getCurrentLocale()->code)?->slug
+                ?? $this->translate(core()->getDefaultLocaleCodeFromDefaultChannel())?->slug;
+
+            return $slug ? (string) url($slug) : '';
+        } catch (\Throwable $e) {
+            return '';
+        }
+    }
+
+    /**
+     * Unique category identifier
+     */
+    #[ApiProperty(identifier: true, writable: false)]
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /** IDs only — a nested object tree here makes the serializer recurse the whole catalogue; use /category-trees instead. */
+    #[ApiProperty(readableLink: false, description: 'Direct child category IDs (use /category-trees for the full nested tree)')]
+    public function getChildren(): array
+    {
+        try {
+            return $this->children()->pluck('id')->all();
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    #[ApiProperty(readableLink: true, description: 'Filterable attributes assigned to this category')]
+    public function filterable_attributes(): BelongsToMany
+    {
+        return $this->belongsToMany(Attribute::class, 'category_filterable_attributes')
+            ->with([
+                'options' => fn ($q) => $q->orderBy('sort_order'),
+                'translations',
+                'options.translations',
+            ]);
+    }
+
+    /** Overrides the core relation of the same name so the API's Attribute resource is the related class. */
+    public function filterableAttributes(): BelongsToMany
+    {
+        return $this->filterable_attributes();
+    }
+}
