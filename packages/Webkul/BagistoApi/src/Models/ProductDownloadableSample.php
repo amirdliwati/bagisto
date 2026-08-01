@@ -1,0 +1,298 @@
+<?php
+
+namespace Webkul\BagistoApi\Models;
+
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\GraphQl\Query;
+use ApiPlatform\Metadata\GraphQl\QueryCollection;
+use ApiPlatform\Metadata\Link;
+use ApiPlatform\OpenApi\Model\Operation;
+use ApiPlatform\OpenApi\Model\Response;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Webkul\BagistoApi\Resolver\BaseQueryItemResolver;
+use Webkul\BagistoApi\State\DownloadableSamplesProvider;
+use Webkul\Product\Models\ProductDownloadableSample as BaseProductDownloadableSample;
+
+#[ApiResource(
+    routePrefix: '/api/shop',
+    uriTemplate: '/product-downloadable-samples/{id}',
+    operations: [
+        new GetCollection(
+            uriTemplate: '/product-downloadable-samples',
+            openapi: new Operation(
+                tags: ['Product Types'],
+                summary: 'List downloadable samples',
+                description: 'Returns sample/preview files for downloadable-type products. Visible to all visitors before purchase.',
+                responses: [
+                    '200' => new Response(
+                        description: 'List of downloadable samples',
+                        content: new \ArrayObject([
+                            'application/json' => [
+                                'example' => [
+                                    [
+                                        'id' => 1,
+                                        'file' => 'product_downloadable_links/2506/1apTXUkt2ugCISKHadT5Fmp4EwU7YeWYY2wb4mNs.pdf',
+                                        'fileName' => 'document.pdf',
+                                        'type' => 'file',
+                                        'sortOrder' => 0,
+                                        'createdAt' => '2026-04-03T00:14:55+05:30',
+                                        'updatedAt' => '2026-04-03T00:14:55+05:30',
+                                        'fileUrl' => 'http://localhost:8000/api/downloadable/download-sample/sample/1',
+                                        'product' => '/api/shop/products/2506',
+                                        'translation' => '/api/shop/product_downloadable_sample_translations/1',
+                                        'translations' => ['/api/shop/product_downloadable_sample_translations/1'],
+                                    ],
+                                ],
+                            ],
+                        ]),
+                    ),
+                ],
+            ),
+        ),
+        new Get(
+            uriTemplate: '/product-downloadable-samples/{id}',
+            openapi: new Operation(
+                tags: ['Product Types'],
+                summary: 'Get a single downloadable sample',
+                description: 'Returns one sample/preview file for a downloadable-type product. Visible to all visitors before purchase.',
+                responses: [
+                    '200' => new Response(
+                        description: 'The downloadable sample',
+                        content: new \ArrayObject([
+                            'application/json' => [
+                                'example' => [
+                                    'id' => 1,
+                                    'file' => 'product_downloadable_links/2506/1apTXUkt2ugCISKHadT5Fmp4EwU7YeWYY2wb4mNs.pdf',
+                                    'fileName' => 'document.pdf',
+                                    'type' => 'file',
+                                    'sortOrder' => 0,
+                                    'createdAt' => '2026-04-03T00:14:55+05:30',
+                                    'updatedAt' => '2026-04-03T00:14:55+05:30',
+                                    'fileUrl' => 'http://localhost:8000/api/downloadable/download-sample/sample/1',
+                                    'product' => '/api/shop/products/2506',
+                                    'translation' => '/api/shop/product_downloadable_sample_translations/1',
+                                    'translations' => ['/api/shop/product_downloadable_sample_translations/1'],
+                                ],
+                            ],
+                        ]),
+                    ),
+                    '404' => new Response(
+                        description: 'Downloadable sample not found.',
+                    ),
+                ],
+            ),
+        ),
+    ],
+    graphQlOperations: [
+        new QueryCollection(
+            provider: DownloadableSamplesProvider::class,
+            links: [
+                new Link(
+                    fromProperty: 'downloadableSamples',
+                    fromClass: Product::class,
+                    toClass: self::class,
+                    identifiers: ['product_id'],
+                ),
+            ],
+        ),
+        new Query(resolver: BaseQueryItemResolver::class),
+    ]
+)]
+#[ApiResource(
+    routePrefix: '/api/shop',
+    shortName: 'ProductDownloadableSample',
+    uriTemplate: '/products/{productId}/downloadable-samples',
+    uriVariables: [
+        'productId' => new Link(
+            fromClass: Product::class,
+            fromProperty: 'downloadable_samples',
+            identifiers: ['id']
+        ),
+    ],
+    operations: [
+        new GetCollection(
+            openapi: new Operation(
+                tags: ['Product Types'],
+                summary: 'List downloadable samples for a product',
+                description: 'Downloadable-type only. Returns sample/preview files visible to all visitors before purchase.',
+                responses: [
+                    '200' => new Response(
+                        description: 'List of downloadable samples for the product',
+                        content: new \ArrayObject([
+                            'application/json' => [
+                                'example' => [
+                                    [
+                                        'id' => 1,
+                                        'file' => 'product_downloadable_links/2506/1apTXUkt2ugCISKHadT5Fmp4EwU7YeWYY2wb4mNs.pdf',
+                                        'fileName' => 'document.pdf',
+                                        'type' => 'file',
+                                        'sortOrder' => 0,
+                                        'createdAt' => '2026-04-03T00:14:55+05:30',
+                                        'updatedAt' => '2026-04-03T00:14:55+05:30',
+                                        'fileUrl' => 'http://localhost:8000/api/downloadable/download-sample/sample/1',
+                                        'product' => '/api/shop/products/2506',
+                                        'translation' => '/api/shop/product_downloadable_sample_translations/1',
+                                        'translations' => ['/api/shop/product_downloadable_sample_translations/1'],
+                                    ],
+                                ],
+                            ],
+                        ]),
+                    ),
+                ],
+            ),
+        ),
+    ],
+    graphQlOperations: []
+)]
+class ProductDownloadableSample extends BaseProductDownloadableSample
+{
+    public function toArray(): array
+    {
+        $array = parent::toArray();
+
+        // Ensure title is included in serialization from translations
+        if (! isset($array['title']) && $this->title) {
+            $array['title'] = $this->title;
+        }
+
+        // Override file_url to return null instead of empty string when no file
+        if (! $this->file || empty($this->file)) {
+            $array['file_url'] = null;
+        }
+
+        return $array;
+    }
+
+    #[ApiProperty(identifier: true, writable: false)]
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    public function translation(): HasOne
+    {
+        return $this->hasOne(ProductDownloadableSampleTranslation::class, 'product_downloadable_sample_id');
+    }
+
+    /**
+     * Get the file URL via the REST download endpoint.
+     */
+    public function file_url(): ?string
+    {
+        if (! $this->file || empty($this->file)) {
+            return null;
+        }
+
+        return url('/api/downloadable/download-sample/sample/'.$this->id);
+    }
+
+    #[ApiProperty(writable: true, readable: true)]
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $value): void
+    {
+        $this->title = $value;
+    }
+
+    #[ApiProperty(writable: true, readable: true)]
+    #[Groups(['mutation'])]
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(?string $value): void
+    {
+        $this->url = $value;
+    }
+
+    #[ApiProperty(writable: true, readable: true)]
+    #[Groups(['mutation'])]
+    public function getFile(): ?string
+    {
+        return $this->file;
+    }
+
+    public function setFile(?string $value): void
+    {
+        $this->file = $value;
+    }
+
+    #[ApiProperty(writable: true, readable: true)]
+    #[Groups(['mutation'])]
+    public function getFileName(): ?string
+    {
+        return $this->file_name;
+    }
+
+    public function setFileName(?string $value): void
+    {
+        $this->file_name = $value;
+    }
+
+    #[ApiProperty(writable: true, readable: true)]
+    #[Groups(['mutation'])]
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(?string $value): void
+    {
+        $this->type = $value;
+    }
+
+    #[ApiProperty(writable: true, readable: true)]
+    #[Groups(['mutation'])]
+    public function getSortOrder(): ?int
+    {
+        return $this->sort_order;
+    }
+
+    public function setSortOrder(?int $value): void
+    {
+        $this->sort_order = $value;
+    }
+
+    #[ApiProperty(writable: true, readable: true)]
+    public function getProductId(): ?int
+    {
+        return $this->product_id;
+    }
+
+    public function setProductId(?int $value): void
+    {
+        $this->product_id = $value;
+    }
+
+    #[ApiProperty(writable: false, readable: true)]
+    public function getFileUrl(): ?string
+    {
+        return $this->file_url();
+    }
+
+    /**
+     * Check if the given URL is already absolute (has a protocol).
+     */
+    private function isAbsoluteUrl(?string $url): bool
+    {
+        if (! $url) {
+            return false;
+        }
+
+        return str_starts_with($url, 'http://') || str_starts_with($url, 'https://');
+    }
+}

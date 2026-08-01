@@ -1,0 +1,167 @@
+<?php
+
+namespace Webkul\BagistoApi\Models;
+
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\GraphQl\Query;
+use ApiPlatform\Metadata\GraphQl\QueryCollection;
+use ApiPlatform\OpenApi\Model\Operation;
+use ApiPlatform\OpenApi\Model\Response;
+use Illuminate\Database\Eloquent\Model;
+use Webkul\BagistoApi\Resolver\BaseQueryItemResolver;
+use Webkul\BagistoApi\Resolver\PageByUrlKeyResolver;
+use Webkul\BagistoApi\State\CursorAwareCollectionProvider;
+use Webkul\BagistoApi\State\PageProvider;
+use Webkul\CMS\Models\Page as BasePage;
+
+#[ApiResource(
+    routePrefix: '/api/shop',
+    shortName: 'page',
+    operations: [
+        new Get(
+            provider: PageProvider::class,
+            openapi: new Operation(
+                tags: ['CMS Page'],
+                summary: 'Get a single CMS page by ID',
+                description: 'Returns one CMS page with its current-locale `translation` embedded. Public endpoint.',
+                responses: [
+                    '200' => new Response(
+                        description: 'The CMS page.',
+                        content: new \ArrayObject([
+                            'application/json' => [
+                                'example' => [
+                                    'id' => '/api/shop/pages/152',
+                                    '_id' => 152,
+                                    'layout' => null,
+                                    'createdAt' => '2026-06-23T12:21:16+05:30',
+                                    'updatedAt' => '2026-06-23T12:21:16+05:30',
+                                    'translation' => [
+                                        'id' => '/api/shop/page_translations/297',
+                                        '_id' => 297,
+                                        'pageTitle' => 'About testing (Updated)',
+                                        'urlKey' => 'testing',
+                                        'htmlContent' => '<h1>About Us</h1>',
+                                        'metaTitle' => 'About Us',
+                                        'metaDescription' => 'Learn more about our company.',
+                                        'metaKeywords' => 'about,us,company',
+                                        'locale' => 'en',
+                                        'cmsPageId' => '152',
+                                    ],
+                                ],
+                            ],
+                        ]),
+                    ),
+                    '404' => new Response(description: 'Page not found.'),
+                ],
+            ),
+        ),
+        new GetCollection(
+            provider: PageProvider::class,
+            paginationEnabled: true,
+            paginationItemsPerPage: 10,
+            paginationMaximumItemsPerPage: 100,
+            paginationClientItemsPerPage: true,
+            openapi: new Operation(
+                tags: ['CMS Page'],
+                summary: 'List CMS pages',
+                description: 'Returns CMS pages, each with its current-locale `translation` embedded. Public endpoint.',
+                responses: [
+                    '200' => new Response(
+                        description: 'List of CMS pages.',
+                        content: new \ArrayObject([
+                            'application/json' => [
+                                'example' => [
+                                    [
+                                        'id' => '/api/shop/pages/152',
+                                        '_id' => 152,
+                                        'layout' => null,
+                                        'createdAt' => '2026-06-23T12:21:16+05:30',
+                                        'updatedAt' => '2026-06-23T12:21:16+05:30',
+                                        'translation' => [
+                                            'id' => '/api/shop/page_translations/297',
+                                            '_id' => 297,
+                                            'pageTitle' => 'About testing (Updated)',
+                                            'urlKey' => 'testing',
+                                            'htmlContent' => '<h1>About Us</h1>',
+                                            'metaTitle' => 'About Us',
+                                            'metaDescription' => 'Learn more about our company.',
+                                            'metaKeywords' => 'about,us,company',
+                                            'locale' => 'en',
+                                            'cmsPageId' => '152',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ]),
+                    ),
+                ],
+            ),
+        ),
+    ],
+    graphQlOperations: [
+        new Query(resolver: BaseQueryItemResolver::class),
+        new QueryCollection(provider: CursorAwareCollectionProvider::class),
+        new QueryCollection(
+            name: 'pageByUrlKey',
+            args: [
+                'urlKey' => [
+                    'type' => 'String!',
+                    'description' => 'The URL key of the page',
+                ],
+            ],
+            paginationEnabled: false,
+            resolver: PageByUrlKeyResolver::class,
+        ),
+    ],
+)]
+class Page extends BasePage
+{
+    /**
+     * Get unique page identifier for API Platform
+     */
+    #[ApiProperty(identifier: true, writable: false)]
+    public function getId(): int
+    {
+        return (int) $this->id;
+    }
+
+    /**
+     * Get layout
+     */
+    #[ApiProperty(writable: false, readable: true)]
+    public function getLayout(): ?string
+    {
+        return $this->layout;
+    }
+
+    /**
+     * Get created at
+     */
+    #[ApiProperty(writable: false, readable: true)]
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->created_at;
+    }
+
+    /**
+     * Get updated at
+     */
+    #[ApiProperty(writable: false, readable: true)]
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updated_at;
+    }
+
+    /**
+     * Get current locale translation for API
+     */
+    #[ApiProperty(readable: true, writable: false, description: 'Current locale translation')]
+    public function getCurrentTranslation(): ?Model
+    {
+        return $this->translations->firstWhere('locale', app()->getLocale())
+            ?? $this->translations->first();
+    }
+}

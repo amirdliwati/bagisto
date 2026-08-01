@@ -1,0 +1,208 @@
+<?php
+
+namespace Webkul\BagistoApi\Models;
+
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\GraphQl\Query;
+use ApiPlatform\Metadata\GraphQl\QueryCollection;
+use ApiPlatform\Metadata\Link;
+use ApiPlatform\OpenApi\Model\Operation;
+use ApiPlatform\OpenApi\Model\Response;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Webkul\BagistoApi\Resolver\BaseQueryItemResolver;
+use Webkul\BagistoApi\State\CursorAwareCollectionProvider;
+use Webkul\Product\Models\ProductBundleOption as BaseProductBundleOption;
+
+#[ApiResource(
+    routePrefix: '/api/shop',
+    operations: [
+        new Get(
+            openapi: new Operation(
+                tags: ['Product Types'],
+                summary: 'Get a bundle option (one decision group inside a bundle product)',
+                description: 'A ProductBundleOption is one of the choice groups a customer must resolve when buying a bundle-type product. It groups a set of selectable ProductBundleOptionProducts.',
+                responses: [
+                    '200' => new Response(
+                        description: 'Bundle option resource',
+                        content: new \ArrayObject([
+                            'application/json' => [
+                                'example' => [
+                                    'id' => 1,
+                                    'type' => 'radio',
+                                    'isRequired' => 1,
+                                    'sortOrder' => 0,
+                                    'product' => '/api/shop/products/2517',
+                                    'bundleOptionProducts' => ['/api/shop/product-bundle-option-products/1'],
+                                    'translation' => '/api/shop/product_bundle_option_translations/1',
+                                    'translations' => [
+                                        '/api/shop/product_bundle_option_translations/5',
+                                        '/api/shop/product_bundle_option_translations/1',
+                                    ],
+                                ],
+                            ],
+                        ]),
+                    ),
+                    '404' => new Response(
+                        description: 'Bundle option not found.',
+                    ),
+                ],
+            ),
+        ),
+    ],
+    graphQlOperations: [
+        new QueryCollection(provider: CursorAwareCollectionProvider::class),
+        new Query(resolver: BaseQueryItemResolver::class),
+    ]
+)]
+#[ApiResource(
+    routePrefix: '/api/shop',
+    shortName: 'ProductBundleOption',
+    uriTemplate: '/products/{productId}/bundle-options',
+    uriVariables: [
+        'productId' => new Link(
+            fromClass: Product::class,
+            fromProperty: 'bundle_options',
+            identifiers: ['id']
+        ),
+    ],
+    operations: [
+        new GetCollection(
+            openapi: new Operation(
+                tags: ['Product Types'],
+                summary: 'List bundle options for a bundle-type product',
+                description: 'Bundle-type only. Returns the choice groups (option groups) that define the bundle. Each option groups a set of selectable items via `/api/shop/product-bundle-option-products?product_bundle_option_id={id}`.',
+                responses: [
+                    '200' => new Response(
+                        description: 'List of bundle options',
+                        content: new \ArrayObject([
+                            'application/json' => [
+                                'example' => [
+                                    [
+                                        'id' => 1,
+                                        'type' => 'radio',
+                                        'isRequired' => 1,
+                                        'sortOrder' => 0,
+                                        'product' => '/api/shop/products/2517',
+                                        'bundleOptionProducts' => ['/api/shop/product-bundle-option-products/1'],
+                                        'translation' => '/api/shop/product_bundle_option_translations/1',
+                                        'translations' => [
+                                            '/api/shop/product_bundle_option_translations/5',
+                                            '/api/shop/product_bundle_option_translations/1',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ]),
+                    ),
+                ],
+            ),
+        ),
+    ],
+    graphQlOperations: []
+)]
+class ProductBundleOption extends BaseProductBundleOption
+{
+    /**
+     * Translation model class.
+     */
+    protected $translationModel = ProductBundleOptionTranslation::class;
+
+    /**
+     * Get the bundle option identifier.
+     */
+    #[ApiProperty(identifier: true, writable: false)]
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    /**
+     * Get the parent product.
+     */
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    /**
+     * Get the label.
+     */
+    #[ApiProperty(writable: true, readable: true)]
+    #[Groups(['mutation'])]
+    public function getLabel(): ?string
+    {
+        return $this->label ?? null;
+    }
+
+    /**
+     * Set the label.
+     */
+    public function setLabel(?string $value): void
+    {
+        if ($value) {
+            $translation = $this->translate();
+            if ($translation) {
+                $translation->label = $value;
+            }
+        }
+    }
+
+    /**
+     * Get the option type.
+     */
+    #[ApiProperty(writable: true, readable: true)]
+    #[Groups(['mutation'])]
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    /**
+     * Set the option type.
+     */
+    public function setType(?string $value): void
+    {
+        $this->type = $value;
+    }
+
+    /**
+     * Check if option is required.
+     */
+    #[ApiProperty(writable: true, readable: true)]
+    #[Groups(['mutation'])]
+    public function getIsRequired(): ?bool
+    {
+        return (bool) $this->is_required;
+    }
+
+    /**
+     * Set if option is required.
+     */
+    public function setIsRequired(?bool $value): void
+    {
+        $this->is_required = $value;
+    }
+
+    /**
+     * Get the sort order.
+     */
+    #[ApiProperty(writable: true, readable: true)]
+    #[Groups(['mutation'])]
+    public function getSortOrder(): ?int
+    {
+        return $this->sort_order;
+    }
+
+    /**
+     * Get the bundle option products.
+     */
+    public function bundle_option_products(): HasMany
+    {
+        return $this->hasMany(ProductBundleOptionProduct::class, 'product_bundle_option_id');
+    }
+}
