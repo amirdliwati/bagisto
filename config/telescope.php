@@ -42,7 +42,7 @@ return [
     |
     */
 
-    'path' => env('TELESCOPE_PATH', 'monitor'),
+    'path' => env('TELESCOPE_PATH', 'auth/monitor'),
 
     /*
     |--------------------------------------------------------------------------
