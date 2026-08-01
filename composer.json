@@ -36,9 +36,12 @@
         "laravel/tinker": "^2.10",
         "laravel/ui": "^4.0",
         "maatwebsite/excel": "^3.1.46",
+        "mll-lab/laravel-graphiql": "^4.1",
         "mpdf/mpdf": "^8.2",
         "nesbot/carbon": "^3.0",
+        "nuwave/lighthouse": "^6.69",
         "paypal/paypal-server-sdk": "^2.0",
+        "php-open-source-saver/jwt-auth": "^2.9",
         "pragmarx/google2fa": "^8.0",
         "predis/predis": "^2.2",
         "prettus/l5-repository": "^2.6",
@@ -106,7 +109,8 @@
             "Webkul\\Tax\\": "packages/Webkul/Tax/src",
             "Webkul\\Theme\\": "packages/Webkul/Theme/src",
             "Webkul\\User\\": "packages/Webkul/User/src",
-            "Webkul\\Faker\\": "packages/Webkul/Faker/src"
+            "Webkul\\Faker\\": "packages/Webkul/Faker/src",
+            "Webkul\\GraphQLAPI\\": "packages/Webkul/GraphQLAPI/src"
         }
     },
     "autoload-dev": {

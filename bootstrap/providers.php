@@ -44,6 +44,7 @@ use Webkul\Theme\Providers\ThemeServiceProvider;
 use Webkul\User\Providers\UserServiceProvider;
 
 use Webkul\Faker\Providers\FakerServiceProvider;
+use Webkul\GraphQLAPI\Providers\GraphQLAPIServiceProvider;
 
 return [
     /**
@@ -97,4 +98,5 @@ return [
     UserServiceProvider::class,
 
     FakerServiceProvider::class,
+    GraphQLAPIServiceProvider::class,
 ];
