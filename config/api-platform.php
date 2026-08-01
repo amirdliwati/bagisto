@@ -99,7 +99,7 @@ return [
     ],
 
     'graphql' => [
-        'enabled' => true,
+        'enabled' => false,
         'nesting_separator' => '__',
         'introspection' => ['enabled' => true],
         'max_query_complexity' => 400,
