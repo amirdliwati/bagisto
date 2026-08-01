@@ -1,0 +1,104 @@
+<?php
+
+namespace Webkul\B2BSuite\DataGrids\Shop;
+
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
+use Webkul\DataGrid\DataGrid;
+
+class RoleDataGrid extends DataGrid
+{
+    /**
+     * Prepare query builder.
+     *
+     * @return Builder
+     */
+    public function prepareQueryBuilder()
+    {
+        $customer = auth()->guard('customer')->user();
+        $companyId = $customer->type === 'company'
+            ? $customer->id
+            : DB::table('b2b_customer_companies')
+                ->where('customer_id', $customer->id)
+                ->value('company_id');
+
+        return DB::table('b2b_company_roles')
+            ->select(
+                'b2b_company_roles.id as role_id',
+                'b2b_company_roles.name',
+                'b2b_company_roles.permission_type'
+            )
+            ->where('b2b_company_roles.customer_id', $companyId);
+    }
+
+    /**
+     * Add Columns.
+     *
+     * @return void
+     */
+    public function prepareColumns()
+    {
+        $this->addColumn([
+            'index' => 'role_id',
+            'label' => trans('b2b::app.shop.customers.account.roles.index.datagrid.id'),
+            'type' => 'integer',
+            'filterable' => true,
+            'sortable' => true,
+        ]);
+
+        $this->addColumn([
+            'index' => 'name',
+            'label' => trans('b2b::app.shop.customers.account.roles.index.datagrid.name'),
+            'type' => 'string',
+            'searchable' => true,
+            'filterable' => true,
+            'sortable' => true,
+        ]);
+
+        $this->addColumn([
+            'index' => 'permission_type',
+            'label' => trans('b2b::app.shop.customers.account.roles.index.datagrid.permission-type'),
+            'type' => 'string',
+            'searchable' => true,
+            'filterable' => true,
+            'filterable_type' => 'dropdown',
+            'filterable_options' => [
+                [
+                    'label' => trans('b2b::app.shop.customers.account.roles.index.datagrid.custom'),
+                    'value' => 'custom',
+                ],
+                [
+                    'label' => trans('b2b::app.shop.customers.account.roles.index.datagrid.all'),
+                    'value' => 'all',
+                ],
+            ],
+            'sortable' => true,
+        ]);
+    }
+
+    /**
+     * Prepare actions.
+     *
+     * @return void
+     */
+    public function prepareActions()
+    {
+        $this->addAction([
+            'icon' => 'icon-bin',
+            'title' => trans('b2b::app.shop.customers.account.roles.index.datagrid.delete'),
+            'method' => 'POST',
+            'url' => function ($row) {
+                return route('shop.customers.account.roles.delete', $row->role_id);
+            },
+        ]);
+
+        $this->addAction([
+            'icon' => 'icon-edit',
+            'title' => trans('b2b::app.shop.customers.account.roles.index.datagrid.edit'),
+            'method' => 'GET',
+            'url' => function ($row) {
+                return route('shop.customers.account.roles.edit', $row->role_id);
+            },
+        ]);
+    }
+}

@@ -111,7 +111,8 @@
             "Webkul\\Theme\\": "packages/Webkul/Theme/src",
             "Webkul\\User\\": "packages/Webkul/User/src",
             "Webkul\\Faker\\": "packages/Webkul/Faker/src",
-            "Webkul\\GraphQLAPI\\": "packages/Webkul/GraphQLAPI/src"
+            "Webkul\\GraphQLAPI\\": "packages/Webkul/GraphQLAPI/src",
+            "Webkul\\B2BSuite\\": "packages/Webkul/B2BSuite/src"
         }
     },
     "autoload-dev": {
