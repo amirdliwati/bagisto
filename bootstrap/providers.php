@@ -43,6 +43,8 @@ use Webkul\Tax\Providers\TaxServiceProvider;
 use Webkul\Theme\Providers\ThemeServiceProvider;
 use Webkul\User\Providers\UserServiceProvider;
 
+use Webkul\Faker\Providers\FakerServiceProvider;
+
 return [
     /**
      * Application service providers.
@@ -93,4 +95,6 @@ return [
     TaxServiceProvider::class,
     ThemeServiceProvider::class,
     UserServiceProvider::class,
+
+    FakerServiceProvider::class,
 ];
