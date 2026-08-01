@@ -5,7 +5,6 @@ return [
     App\Providers\TelescopeServiceProvider::class,
     Webkul\Admin\Providers\AdminServiceProvider::class,
     Webkul\Attribute\Providers\AttributeServiceProvider::class,
-    Webkul\B2BSuite\Providers\B2BSuiteServiceProvider::class,
     Webkul\BookingProduct\Providers\BookingProductServiceProvider::class,
     Webkul\CMS\Providers\CMSServiceProvider::class,
     Webkul\CartRule\Providers\CartRuleServiceProvider::class,
@@ -20,9 +19,7 @@ return [
     Webkul\DebugBar\Providers\DebugBarServiceProvider::class,
     Webkul\EUWithdrawal\Providers\EUWithdrawalServiceProvider::class,
     Webkul\FPC\Providers\FPCServiceProvider::class,
-    Webkul\Faker\Providers\FakerServiceProvider::class,
     Webkul\GDPR\Providers\GDPRServiceProvider::class,
-    Webkul\GraphQLAPI\Providers\GraphQLAPIServiceProvider::class,
     Webkul\ImageCache\Providers\ImageCacheServiceProvider::class,
     Webkul\Installer\Providers\InstallerServiceProvider::class,
     Webkul\Inventory\Providers\InventoryServiceProvider::class,
@@ -47,5 +44,17 @@ return [
     Webkul\Tax\Providers\TaxServiceProvider::class,
     Webkul\Theme\Providers\ThemeServiceProvider::class,
     Webkul\User\Providers\UserServiceProvider::class,
+
+    // From Bagisto 
+    Webkul\GraphQLAPI\Providers\GraphQLAPIServiceProvider::class,
+    Webkul\Faker\Providers\FakerServiceProvider::class,
+    Webkul\B2BSuite\Providers\B2BSuiteServiceProvider::class,
     Webkul\PackageGenerator\Providers\PackageGeneratorServiceProvider::class,
+
+    // Not Installed From Bagisto
+    // Webkul\Rewards\Providers\RewardsServiceProvider::class,
+    // Webkul\BagistoApi\Providers\BagistoApiServiceProvider::class,
+
+    // Customization Packages
+    Frontier\Admin\Providers\AdminServiceProvider::class,
 ];

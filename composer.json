@@ -113,7 +113,8 @@
             "Webkul\\Faker\\": "packages/Webkul/Faker/src",
             "Webkul\\GraphQLAPI\\": "packages/Webkul/GraphQLAPI/src",
             "Webkul\\B2BSuite\\": "packages/Webkul/B2BSuite/src",
-            "Webkul\\PackageGenerator\\": "packages/Webkul/PackageGenerator/src"
+            "Webkul\\PackageGenerator\\": "packages/Webkul/PackageGenerator/src",
+            "Frontier\\Admin\\": "packages/Frontier/Admin/src"
         }
     },
     "autoload-dev": {
