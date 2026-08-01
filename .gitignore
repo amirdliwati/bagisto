@@ -2,6 +2,10 @@
 .agent*
 .claude
 .cursor
+.codex
+.factory
+.ai
+.pi
 .env
 .env.testing
 .idea
