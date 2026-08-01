@@ -47,4 +47,5 @@ return [
     Webkul\Tax\Providers\TaxServiceProvider::class,
     Webkul\Theme\Providers\ThemeServiceProvider::class,
     Webkul\User\Providers\UserServiceProvider::class,
+    Webkul\PackageGenerator\Providers\PackageGeneratorServiceProvider::class,
 ];
