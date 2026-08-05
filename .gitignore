@@ -1,6 +1,3 @@
-.agents
-.agent*
-.claude
 .cursor
 .codex
 .factory
@@ -15,8 +12,6 @@
 .vscode
 .vagrant
 *.hot
-.agents/
-.claude/
 .cursor/
 .opencode/
 /agents/
